@@ -204,46 +204,50 @@ int tamanho() {
     return cont;
 }
 
+
+
 void excluir(char *nome) {
     int n = tamanho();
-    produto v[n];
+    produto *lista = (produto*)malloc(n * sizeof(produto));
     FILE *file = fopen("camisas.b", "rb");
     int i = 0;
-    while (fread(&v[i], sizeof(produto), 1, file)) {
+    while (fread(&lista[i], sizeof(produto), 1, file)) {
         i++;
     }
     fclose(file);
     file = fopen("camisas.b", "wb");
     for (i = 0; i < n; i++) {
-        if (v[i].nome != nome) {
-            fwrite(&v[i], sizeof(produto), 1, file);
+        if (strcmp(lista[i].nome, nome) != 0) {
+            fwrite(&lista[i], sizeof(produto), 1, file);
         }
     }
     fclose(file);
+    free(lista);
 }
 
-void editar(char nome) {
+void editar(char *nome) {
     int n = tamanho();
-    produto v[n];
+    produto *lista = (produto*)malloc(n * sizeof(produto));
     FILE *file = fopen("camisas.b", "rb");
     int i = 0;
-    while (fread(&v[i], sizeof(produto), 1, file)) {
+    while (fread(&lista[i], sizeof(produto), 1, file)) {
         i++;
     }
     fclose(file);
     file = fopen("camisas.b", "wb");
     for (i = 0; i < n; i++) {
-        if (v[i].nome == nome) {
+        if (strcmp(lista[i].nome, nome) == 0) {
             int preco;
-            printf("Informe  o preco\n");
+            printf("Informe o preco:\n");
             scanf("%i", &preco);
-            v[i].preco = preco;
-            printf("preco: %i", preco);
+            lista[i].preco = preco;
+            printf("preco: %i\n", preco);
         }
-        printf("preco: %f", v[i].preco);
-        fwrite(&v[i], sizeof(produto), 1, file);
+        printf("preco: %d\n", lista[i].preco);
+        fwrite(&lista[i], sizeof(produto), 1, file);
     }
     fclose(file);
+    free(lista);
 }
 
 int main() {
