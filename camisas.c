@@ -54,7 +54,6 @@ struct User {
 struct User users[MAX_USERS];
 int numUsers = 0;
 
-
 void cadastrarUsuario() {
    
     if (numUsers >= MAX_USERS) {
@@ -82,7 +81,6 @@ void cadastrarUsuario() {
     system ("pause");
     system ("cls");
 }
-
 
 void fazerLogin() {
     while (1) {
@@ -125,9 +123,8 @@ typedef struct {
     int preco;
     char nome[15];
     char tamanho;
+    struct produto* prox;
 } produto;
-
-
 
 void menu() {
     printf("Escolha uma opcao:\n");
@@ -142,7 +139,7 @@ void menu() {
 }
 
 void cadastrar() {
-    FILE* file = fopen("camisas.b", "wb");
+    FILE* file = fopen("camisas.b", "ab");
     if (file == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return;
@@ -153,11 +150,24 @@ void cadastrar() {
     printf("Informe o nome, preco e tamanho da camisa:\n");
     scanf("%s %d %c", a.nome, &a.preco, &a.tamanho);
 
-    fwrite(&a, sizeof(produto), 1, file);
+    // Criando um novo nó
+    produto* novoProduto = (produto*)malloc(sizeof(produto));
+    if (novoProduto == NULL) {
+        printf("Erro ao alocar memória para o novo produto.\n");
+        return;
+    }
+    *novoProduto = a; // Copiando os dados da camisa para o novo nó
+
+    novoProduto->prox = NULL; // Definindo o próximo como NULL, pois será o último nó da lista
+
+    // Lógica para inserir o novo nó na lista encadeada
+
+    fwrite(novoProduto, sizeof(produto), 1, file);
     fclose(file);
 
     printf("Camisa cadastrada com sucesso!\n");
 }
+
 void buscar(char *nome) {
     FILE* file = fopen("camisas.b", "rb");
     if (file == NULL) {
@@ -193,6 +203,7 @@ void listar() {
     }
     fclose(file);
 }
+
 int tamanho() {
     FILE* file = fopen("camisas.b", "rb");
     produto a;
@@ -204,23 +215,40 @@ int tamanho() {
     return cont;
 }
 
-
-
 void excluir(char *nome) {
     int n = tamanho();
     produto *lista = (produto*)malloc(n * sizeof(produto));
+    if (lista == NULL) {
+        printf("Erro ao alocar memória para a lista.\n");
+        return;
+    }
+
     FILE *file = fopen("camisas.b", "rb");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        free(lista);
+        return;
+    }
+
     int i = 0;
     while (fread(&lista[i], sizeof(produto), 1, file)) {
         i++;
     }
     fclose(file);
+
     file = fopen("camisas.b", "wb");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        free(lista);
+        return;
+    }
+
     for (i = 0; i < n; i++) {
         if (strcmp(lista[i].nome, nome) != 0) {
             fwrite(&lista[i], sizeof(produto), 1, file);
         }
     }
+
     fclose(file);
     free(lista);
 }
@@ -228,24 +256,41 @@ void excluir(char *nome) {
 void editar(char *nome) {
     int n = tamanho();
     produto *lista = (produto*)malloc(n * sizeof(produto));
+    if (lista == NULL) {
+        printf("Erro ao alocar memória para a lista.\n");
+        return;
+    }
+
     FILE *file = fopen("camisas.b", "rb");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        free(lista);
+        return;
+    }
+
     int i = 0;
     while (fread(&lista[i], sizeof(produto), 1, file)) {
         i++;
     }
     fclose(file);
+
     file = fopen("camisas.b", "wb");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        free(lista);
+        return;
+    }
+
     for (i = 0; i < n; i++) {
         if (strcmp(lista[i].nome, nome) == 0) {
             int preco;
             printf("Informe o preco:\n");
-            scanf("%i", &preco);
+            scanf("%d", &preco);
             lista[i].preco = preco;
-            printf("preco: %i\n", preco);
         }
-        printf("preco: %d\n", lista[i].preco);
         fwrite(&lista[i], sizeof(produto), 1, file);
     }
+
     fclose(file);
     free(lista);
 }
