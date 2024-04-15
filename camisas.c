@@ -2,6 +2,7 @@
 #include <string.h>
 #include <locale.h>
 #include <stdbool.h>
+#include "camisas.h"
 
 #define MAX_USERS 100
 #define MAX_USERNAME_LENGTH 50
@@ -118,13 +119,6 @@ void fazerLogin() {
         }
     }
 }
-
-typedef struct {
-    int preco;
-    char nome[15];
-    char tamanho;
-    struct produto* prox;
-} produto;
 
 void menu() {
     printf("Escolha uma opcao:\n");
